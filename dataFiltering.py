@@ -1,8 +1,4 @@
 import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-
 
 disciplinas = ['f', 'b', 'q', 'c']
 dados = pd.read_csv('dados.csv', usecols=['titulo', 'resumo', 'palavrasChave', 'areasCiencia'])
@@ -52,9 +48,4 @@ dados.loc[
 # Selecionando disciplinas filtradas acima
 dados = dados.loc[dados['areasCiencia'].isin(disciplinas)]
 
-# plotando histograma
-# sns.histplot(dados['areasCiencia'], bins=5)
-# plt.show()
-
-# gerando arquivo com dados filtrados
 dados.to_csv('dados_v2.csv')
