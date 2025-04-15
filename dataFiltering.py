@@ -50,7 +50,7 @@ dados.loc[
 # Selecionando disciplinas filtradas acima
 dados = dados.loc[dados['areasCiencia'].isin(disciplinas)]
 
-# dados.to_csv('dados_v2.csv')
+dados.to_csv('dados_v2.csv')
 
 
 # forgraph = dados = dados[
