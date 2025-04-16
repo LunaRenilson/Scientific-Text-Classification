@@ -48,7 +48,6 @@ print("Tokens filtrados:", dados['palavrasChave'])
 print("Stemming:", dados['palavrasChave'])
 
 
-
 # Tokenização
 # palavras = word_tokenize(texto)
 # sentencas = sent_tokenize(texto)
