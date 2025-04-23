@@ -1,12 +1,7 @@
 import nltk
 import pandas as pd
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-# from nltk.stem import RSLPStemmer
-from nltk.stem import SnowballStemmer
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import LabelEncoder
-import swifter
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # separar dados de treino e teste
 from sklearn.model_selection import train_test_split
@@ -15,51 +10,19 @@ from sklearn.metrics import accuracy_score, classification_report # avaliar mode
 from sklearn.model_selection import cross_val_score
 
 
-nltk.download('stopwords')
-nltk.download('punkt_tab')
-nltk.download('rslp')
-dados = pd.read_csv('dados_v2.csv')
 
-'''
-A escolha de tokenizar as palavras (e não as frases) se deu porque as palavras, separadamente, aparentam trazer muito valor categórico às áreas da ciência 
-'''
-
-def preProcessing(x_coluna):
-    # Removendo espaços e símbolos
-    x_coluna = x_coluna.fillna('').str.replace('; ', ';', regex=False)
-    x_coluna = x_coluna.str.replace(' ;', ';', regex=False) 
-    x_coluna = x_coluna.str.replace(';', ' ', regex=False)
-    x_coluna = x_coluna.str.replace(',', ' ', regex=False)
-
-    # Tokenizando
-    x_coluna = x_coluna.apply(word_tokenize)
-
-    # Stopwords e Stemming
-    # stemmer = RSLPStemmer()
-    
-    stemmer = SnowballStemmer("portuguese")
-    stop_words = set(stopwords.words('portuguese'))
-    
-    # x_coluna = x_coluna.apply(
-    #     lambda tokens: [stemmer.stem(t.lower()) for t in tokens if t.lower() not in stop_words]
-    # )
-    # Paralelizando a tokenização
-    x_coluna = x_coluna.swifter.progress_bar(desc=f"Processando {x_coluna.name}").apply(
-        lambda tokens: [stemmer.stem(t.lower()) for t in tokens if t.lower() not in stop_words]
-    )
-    
-    # Juntando para vetorização
-    x_coluna = x_coluna.apply(lambda tokens: " ".join(tokens))
-
-    # Retornando coluna preprocessada
-    return x_coluna
+dados = pd.read_csv('dados_processados.csv')
 
 # tokenizando colunas de entrada
-X_titulo = preProcessing(dados['titulo'])
-X_resumo = preProcessing(dados['resumo'])
-X_palavras = preProcessing(dados['palavrasChave'])
+# X_resumo = dados['resumo_processado']
+# X_titulo = dados['titulo_processado']
+# X_palavras = dados['palavrasChave_processado']
 
-X_concatenado = X_titulo + ' '  + ' ' + X_resumo + ' ' + X_palavras 
+X_concatenado = (
+    dados['titulo_processado'].fillna('') + ' ' +
+    dados['resumo_processado'].fillna('') + ' ' +
+    dados['palavrasChave_processado'].fillna('')
+)
 
 vectorizer = TfidfVectorizer()
 X_tfidf = vectorizer.fit_transform(X_concatenado)
@@ -67,20 +30,25 @@ X_tfidf = vectorizer.fit_transform(X_concatenado)
 # Tokenizando coluna de saida
 # Cada campo recebe um valor. Ex: f = 0, q = 1, b = 2, etc... 
 encoder = LabelEncoder()
-y_codificado = encoder.fit_transform(dados['areasCiencia'])
+y_codificado = encoder.fit_transform(dados['classes_originais'])
 
 # Separando dados de treino e teste
-X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_codificado, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_codificado, test_size=0.3, random_state=42,)
 
+for i in range(30):
+    # Treinando modelo
+    svm_linear = SVC(
+        kernel='linear', 
+        random_state=42, 
+        C=i+1,
+        class_weight='balanced'
+    )
 
-# Treinando modelo
-svm_linear = SVC(kernel='linear', random_state=42)
-svm_linear.fit(X_train, y_train)
+    svm_linear.fit(X_train, y_train)
 
-# Fazendo previsões no conjunto de teste
-y_pred = svm_linear.predict(X_test)
+    # Fazendo previsões no conjunto de teste
+    y_pred = svm_linear.predict(X_test)
 
-# Avaliando o modelo
-print("Acurácia do modelo:", accuracy_score(y_test, y_pred))
-print("\nRelatório de classificação:\n", classification_report(y_test, y_pred))
-
+    # Avaliando o modelo
+    # print(classification_report(y_test, y_pred, target_names=encoder.classes_))
+    print(f"c = {i+1}: {round(accuracy_score(y_test, y_pred), 2)}")
