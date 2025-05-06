@@ -8,10 +8,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC # treinar modelo
 from sklearn.metrics import accuracy_score, classification_report # avaliar modelo
 from sklearn.model_selection import cross_val_score
+import joblib  # Importa joblib para salvar modelos
 
 
 
-dados = pd.read_csv('dados_processados.csv')
+dados = pd.read_csv('assets/dados_processados.csv')
 
 # tokenizando colunas de entrada
 # X_resumo = dados['resumo_processado']
@@ -35,20 +36,33 @@ y_codificado = encoder.fit_transform(dados['classes_originais'])
 # Separando dados de treino e teste
 X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_codificado, test_size=0.3, random_state=42,)
 
-for i in range(30):
-    # Treinando modelo
+
+melhor_modelo = None
+melhor_score = 0
+melhor_c = None
+
+for i in range(15):
     svm_linear = SVC(
-        kernel='linear', 
-        random_state=42, 
-        C=i+1,
+        kernel='linear',
+        random_state=42,
+        C=i + 1,
         class_weight='balanced'
     )
-
+    
     svm_linear.fit(X_train, y_train)
-
-    # Fazendo previsões no conjunto de teste
     y_pred = svm_linear.predict(X_test)
+    score = accuracy_score(y_test, y_pred)
+    
+    print(f"c = {i+1}: {round(score, 3)}")
 
-    # Avaliando o modelo
-    # print(classification_report(y_test, y_pred, target_names=encoder.classes_))
-    print(f"c = {i+1}: {round(accuracy_score(y_test, y_pred), 2)}")
+    if score > melhor_score:
+        melhor_score = score
+        melhor_modelo = svm_linear
+        melhor_c = i + 1
+
+# Salvando o melhor modelo
+joblib.dump(melhor_modelo, f"svm/model/svm_linear_C{melhor_c}.joblib")
+
+# Salvando o vectorizer e o encoder
+joblib.dump(vectorizer, "svm/model/vectorizer.joblib")
+joblib.dump(encoder, "svm/model/label_encoder.joblib")
