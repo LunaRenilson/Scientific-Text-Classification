@@ -44,15 +44,15 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, stratify=
 def build_model():
     model = Sequential([
         Dense(64, activation='relu', input_shape=(X.shape[1],), kernel_regularizer=l2(0.001)),
+        Dropout(0.5),
+        Dense(32, activation='relu'),
         Dropout(0.3),
-        Dense(32, activation='relu', kernel_regularizer=l2(0.001)),
-        Dropout(0.3),
-        Dense(16, activation='relu', kernel_regularizer=l2(0.001)),
+        Dense(16, activation='relu'),
         Dropout(0.3),
         Dense(4, activation='softmax')
     ])
 
-    model.compile(optimizer=Adam(learning_rate=0.001),
+    model.compile(optimizer=Adam(learning_rate=0.0001),
                 loss='categorical_crossentropy',
                 metrics=['accuracy', Precision(), Recall()])
     
@@ -64,7 +64,7 @@ model = build_model()
 history = model.fit(
     X_train, y_train,
     validation_data=(X_val, y_val),
-    epochs=20,
+    epochs=25,
     batch_size=32,
     callbacks=[early_stop]
 )
@@ -86,6 +86,6 @@ def plot_history(history):
 
     plt.tight_layout()
     plt.show()
-    plt.savefig('neural-network/mlp_métricas.png')
+    plt.savefig('mlp/mlp_métricas-tfidf.png')
     
 plot_history(history)
