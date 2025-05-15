@@ -11,7 +11,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import pandas as pd
-from tensorflow.keras.metrics import Precision, Recall
+
 
 from tensorflow.keras.metrics import Precision, Recall
 
@@ -85,7 +85,9 @@ def plot_history(history):
         ax.legend()
 
     plt.tight_layout()
-    plt.show()
     plt.savefig('mlp/mlp_métricas-tfidf.png')
+    plt.show()
     
 plot_history(history)
+model.save('mlp/tf-idf/MLP_TFIDF.h5')
+
