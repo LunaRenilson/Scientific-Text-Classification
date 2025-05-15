@@ -85,8 +85,7 @@ def plot_history(history):
         ax.legend()
 
     plt.tight_layout()
-    plt.savefig('mlp/mlp_métricas-tfidf.png')
-    plt.show()
+    plt.savefig('mlp/tf-idf/mlp_métricas-tfidf.png')
     
 plot_history(history)
 model.save('mlp/tf-idf/MLP_TFIDF.h5')
