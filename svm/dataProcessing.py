@@ -11,7 +11,7 @@ import swifter
 nltk.download('stopwords')
 nltk.download('punkt_tab')
 nltk.download('rslp')
-dados = pd.read_csv('dados_v2.csv')
+dados = pd.read_csv('assets/dados_v2.csv')
 
 '''
 A escolha de tokenizar as palavras (e não as frases) se deu porque as palavras, separadamente, aparentam trazer muito valor categórico às áreas da ciência 
@@ -30,6 +30,9 @@ def preProcessing(x_coluna):
     # Stopwords e Stemming
     # stemmer = RSLPStemmer()
     
+    palavras_remover = ['ensino', 'professores', 'professor', 'escola', 'partir']
+    
+    
     stemmer = SnowballStemmer("portuguese")
     stop_words = set(stopwords.words('portuguese'))
     
@@ -37,9 +40,12 @@ def preProcessing(x_coluna):
     #     lambda tokens: [stemmer.stem(t.lower()) for t in tokens if t.lower() not in stop_words]
     # )
     # Paralelizando a tokenização
+    palavras_remover_stem = [stemmer.stem(p.lower()) for p in palavras_remover]
+    
     x_coluna = x_coluna.swifter.progress_bar(desc=f"Processando {x_coluna.name}").apply(
-        lambda tokens: [stemmer.stem(t.lower()) for t in tokens if t.lower() not in stop_words]
-    )
+        lambda tokens: [stemmer.stem(t.lower()) for t in tokens 
+                        if stemmer.stem(t.lower()) not in stop_words 
+                        and stemmer.stem(t.lower()) not in palavras_remover_stem])
     
     # Juntando para vetorização
     x_coluna = x_coluna.apply(lambda tokens: " ".join(tokens))
@@ -64,4 +70,4 @@ dados_processados = pd.DataFrame({
 })
 
 # Salvando em CSV
-dados_processados.to_csv('dados_processados.csv', index=False)
+dados_processados.to_csv('assets/svm/dados_processados.csv', index=False)

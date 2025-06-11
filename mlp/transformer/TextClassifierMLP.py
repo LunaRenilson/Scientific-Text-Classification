@@ -67,9 +67,9 @@ class ClassifierMLP:
         self.model = Sequential([
             Dense(512, activation='relu', input_shape=(self.X.shape[1],), kernel_regularizer=l2(0.001)),
             Dropout(0.5),
-            Dense(128, activation='relu'),
-            Dropout(0.3),
-            Dense(32, activation='relu'),
+            Dense(256, activation='relu'),
+            Dropout(0.4),
+            Dense(64, activation='relu'),
             Dropout(0.3),
             Dense(4, activation='softmax')
         ])

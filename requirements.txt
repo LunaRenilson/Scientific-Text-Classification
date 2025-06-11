@@ -1,5 +1,6 @@
 nltk
 pandas
+swifter
 scikit-learn
 matplotlib
 seaborn
