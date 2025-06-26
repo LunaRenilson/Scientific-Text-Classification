@@ -23,14 +23,15 @@ Classificação: q
 """
 
 
-
 df = pd.read_csv('assets/dados_v2.csv')
 
+floor = df['areasCiencia'].value_counts().min()
+
 selected_df = pd.concat([
-    df[df['areasCiencia'] == 'f'].sample(250, random_state=42),
-    df[df['areasCiencia'] == 'b'].sample(250, random_state=42),
-    df[df['areasCiencia'] == 'q'].sample(250, random_state=42),
-    df[df['areasCiencia'] == 'c'].sample(250, random_state=42)
+    df[df['areasCiencia'] == 'f'].sample(floor, random_state=42),
+    df[df['areasCiencia'] == 'b'].sample(floor, random_state=42),
+    df[df['areasCiencia'] == 'q'].sample(floor, random_state=42),
+    df[df['areasCiencia'] == 'c'].sample(floor, random_state=42)
 ], ignore_index=True).sample(frac=1, random_state=42).reset_index(drop=True)
 
 

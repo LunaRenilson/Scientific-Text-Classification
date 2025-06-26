@@ -15,9 +15,8 @@ import pandas as pd
 
 from tensorflow.keras.metrics import Precision, Recall
 
-
 # Carrega os dados
-df = pd.read_csv('assets/svm/dados_processados.csv')
+df = pd.read_csv('assets/dados_processados.csv')
 
 # # Unindo os campos
 # df['texto_completo'] = (

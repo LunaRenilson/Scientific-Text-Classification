@@ -23,7 +23,7 @@ def plot_confusion_matrix(y_true, y_pred, classes, title='Matriz de Confusão'):
     plt.title(title)
     plt.ylabel('Verdadeiro')
     plt.xlabel('Predito')
-    plt.savefig('assets/svm/Matriz_Confusao.png')
+    plt.savefig('svm/metrics/Matriz_Confusao.png')
 
 # Plot Classification Report
 def plot_classification_report(y_true, y_pred, classes):
@@ -35,10 +35,10 @@ def plot_classification_report(y_true, y_pred, classes):
                 cbar=False, linewidths=0.5)
     plt.title('Classification Report')
     plt.tight_layout()
-    plt.savefig('assets/svm/Classification_Report.png')
+    plt.savefig('svm/metrics/Classification_Report.png')
 
 
-dados = pd.read_csv('assets/svm/dados_processados.csv')
+dados = pd.read_csv('assets/dados_processados.csv')
 
 
 X_concatenado = (
@@ -59,10 +59,6 @@ y_codificado = encoder.fit_transform(dados['classes_originais'])
 X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y_codificado, test_size=0.3, random_state=42,)
 
 
-melhor_modelo = None
-melhor_score = 0
-melhor_c = None
-
 svm_linear = SVC(
     kernel='linear',
     random_state=42,
@@ -77,8 +73,12 @@ score = accuracy_score(y_test, y_pred)
 plot_confusion_matrix(y_test, y_pred, encoder.classes_)
 plot_classification_report(y_test, y_pred, encoder.classes_)
 
+print("Acurácia:", score)
+print("Relatório de Classificação:")
+print(classification_report(y_test, y_pred, target_names=encoder.classes_))
+
 # Salvando o modelo
-joblib.dump(melhor_modelo, f"svm/model/svm_linear_C{melhor_c}.joblib")
+joblib.dump(svm_linear, "svm/model/svm_linear_C1.joblib")
 # Salvando o vectorizer e o encoder
 joblib.dump(vectorizer, "svm/model/vectorizer.joblib")
 joblib.dump(encoder, "svm/model/label_encoder.joblib")
