@@ -5,8 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Graficos das metricas
 import matplotlib.pyplot as plt
-import seaborn as sns 
-
+import seaborn as sns
 
 # separar dados de treino e teste
 from sklearn.model_selection import train_test_split
@@ -40,7 +39,6 @@ def plot_classification_report(y_true, y_pred, classes):
 
 
 dados = pd.read_csv('assets/svm/dados_processados.csv')
-
 
 
 X_concatenado = (

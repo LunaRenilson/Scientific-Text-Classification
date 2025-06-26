@@ -1,0 +1,14 @@
+LLM: Motivos do bom desempenho
+
+✅ 1. Alta similaridade
+Se os textos de teste parecem demais com exemplos do prompt (ex: mesmos termos, frases idênticas ou muito parecidas), o modelo pode “memorizar” a resposta.
+
+✅ 2. Classes muito distintas e fáceis de identificar
+Se seus textos de Biologia falam de "DNA", "mitose", "célula", e os de Matemática falam de "integrais", "equações", o modelo pode classificar com altíssima precisão sem generalizar muito.
+
+✅ 3. Testes sobrepostos com o treino
+Os textos podem ter sido vistos durante o pré-treinamento do modelo (especialmente se são de domínio público, como artigos da Wikipedia ou resumos escolares).
+
+
+
+-> crie uma matriz de confusão.
