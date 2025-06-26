@@ -1,7 +1,7 @@
 from ollama import Client
 import pandas as pd
+from concurrent.futures import ThreadPoolExecutor   # Para fazer chamadas assíncronas/paralelas
 
-client = Client()
 
 
 examples = """
@@ -25,8 +25,8 @@ Classificação: q
 
 df = pd.read_csv('assets/dados_v2.csv')
 
+# Nivela quantidade de amostras entre as áreas de ciência
 floor = df['areasCiencia'].value_counts().min()
-
 selected_df = pd.concat([
     df[df['areasCiencia'] == 'f'].sample(floor, random_state=42),
     df[df['areasCiencia'] == 'b'].sample(floor, random_state=42),
@@ -34,9 +34,11 @@ selected_df = pd.concat([
     df[df['areasCiencia'] == 'c'].sample(floor, random_state=42)
 ], ignore_index=True).sample(frac=1, random_state=42).reset_index(drop=True)
 
-
+# Cria uma coluna com o texto completo
 selected_df['texto_completo'] = selected_df['titulo'] + ' ' + selected_df['areasCiencia']
 
+# Inicializa o cliente do Ollama
+client = Client()
 response = client.generate(
     model='llama3:8b-instruct-q4_K_M',
     prompt='',
