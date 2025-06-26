@@ -77,6 +77,7 @@ for idx, row in selected_df.iterrows():
         selected_df.to_csv('assets/llama_respostas_parcial.csv', index=False)
 
 selected_df.to_csv('assets/llama_respostas.csv', index=False)
+
 # Calcula acurácia
 accuracy = (selected_df['llama_response'] == selected_df['areasCiencia']).mean()
 print(f"Acurácia do modelo: {accuracy:.2%}")
