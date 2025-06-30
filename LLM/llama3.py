@@ -1,7 +1,7 @@
 from ollama import Client
 import pandas as pd
+from concurrent.futures import ThreadPoolExecutor   # Para fazer chamadas assíncronas/paralelas
 
-client = Client()
 
 
 examples = """
@@ -25,8 +25,8 @@ Classificação: q
 
 df = pd.read_csv('assets/dados_v2.csv')
 
-floor = df['areasCiencia'].value_counts().min()
-
+# Nivela quantidade de amostras entre as áreas de ciência
+floor = 300
 selected_df = pd.concat([
     df[df['areasCiencia'] == 'f'].sample(floor, random_state=42),
     df[df['areasCiencia'] == 'b'].sample(floor, random_state=42),
@@ -34,9 +34,11 @@ selected_df = pd.concat([
     df[df['areasCiencia'] == 'c'].sample(floor, random_state=42)
 ], ignore_index=True).sample(frac=1, random_state=42).reset_index(drop=True)
 
-
+# Cria uma coluna com o texto completo
 selected_df['texto_completo'] = selected_df['titulo'] + ' ' + selected_df['areasCiencia']
 
+# Inicializa o cliente do Ollama
+client = Client()
 response = client.generate(
     model='llama3:8b-instruct-q4_K_M',
     prompt='',
@@ -75,7 +77,10 @@ for idx, row in selected_df.iterrows():
     print(f"({idx+1}/{selected_df.shape[0]}) {row['titulo'][:35]}: {resp['response']}")
     selected_df.at[idx, 'llama_response'] = resp['response']
     if (idx + 1) % 20 == 0:
-        selected_df.to_csv('assets/llama_respostas_parcial.csv', index=False)
+        print()
+        print(f'------------------- acurácia parcial: {((selected_df["llama_response"] == selected_df["areasCiencia"]).sum() / (idx + 1)):.2%} -------------------')
+        print()
+        selected_df.to_csv('assets/llama_respostas.csv', index=False)
 
 selected_df.to_csv('assets/llama_respostas.csv', index=False)
 
