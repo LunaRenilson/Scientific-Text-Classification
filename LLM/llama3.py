@@ -26,7 +26,7 @@ Classificação: q
 df = pd.read_csv('assets/dados_v2.csv')
 
 # Nivela quantidade de amostras entre as áreas de ciência
-floor = df['areasCiencia'].value_counts().min()
+floor = 300
 selected_df = pd.concat([
     df[df['areasCiencia'] == 'f'].sample(floor, random_state=42),
     df[df['areasCiencia'] == 'b'].sample(floor, random_state=42),
@@ -77,7 +77,10 @@ for idx, row in selected_df.iterrows():
     print(f"({idx+1}/{selected_df.shape[0]}) {row['titulo'][:35]}: {resp['response']}")
     selected_df.at[idx, 'llama_response'] = resp['response']
     if (idx + 1) % 20 == 0:
-        selected_df.to_csv('assets/llama_respostas_parcial.csv', index=False)
+        print()
+        print(f'------------------- acurácia parcial: {((selected_df["llama_response"] == selected_df["areasCiencia"]).sum() / (idx + 1)):.2%} -------------------')
+        print()
+        selected_df.to_csv('assets/llama_respostas.csv', index=False)
 
 selected_df.to_csv('assets/llama_respostas.csv', index=False)
 
