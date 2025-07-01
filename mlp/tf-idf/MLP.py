@@ -12,18 +12,15 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
+import numpy as np
 
 from tensorflow.keras.metrics import Precision, Recall
 
 # Carrega os dados
 df = pd.read_csv('assets/dados_processados.csv')
 
-# # Unindo os campos
-# df['texto_completo'] = (
-#     df['titulo_processado'].fillna('') + ' ' +
-#     df['resumo_processado'].fillna('') + ' ' +
-#     df['palavrasChave'].fillna('')
-# )
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Escolhendo os 5k termos mais frequentes
@@ -34,7 +31,7 @@ X = vectorizer.fit_transform(df['texto_concatenado']).toarray()
 le = LabelEncoder()
 y_int = le.fit_transform(df['classes_originais'])  # f → 0, q → 1, etc.
 
-# Converte para one-hot
+# Converte para one-hotclear
 y = to_categorical(y_int)
 
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, stratify=y)
@@ -57,21 +54,10 @@ def build_model():
     
     return model
 
-early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
-
-model = build_model()
-history = model.fit(
-    X_train, y_train,
-    validation_data=(X_val, y_val),
-    epochs=25,
-    batch_size=32,
-    callbacks=[early_stop]
-)
-
-def plot_history(history):
+def plot_history(history, model, X_val, y_val, label_encoder):
     metrics = ['accuracy', 'loss', 'precision', 'recall']
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    axes = axes.flatten()  # Transforma em lista 1D para iteração
+    axes = axes.flatten()
 
     for i, metric in enumerate(metrics):
         ax = axes[i]
@@ -85,7 +71,35 @@ def plot_history(history):
 
     plt.tight_layout()
     plt.savefig('mlp/tf-idf/mlp_métricas-tfidf.png')
-    
-plot_history(history)
-model.save('mlp/tf-idf/MLP_TFIDF.h5')
+    plt.close()
 
+    # Previsões no conjunto de validação
+    y_pred_probs = model.predict(X_val)
+    y_pred = np.argmax(y_pred_probs, axis=1)
+    y_true = np.argmax(y_val, axis=1)
+
+    # Matriz de confusão
+    cm = confusion_matrix(y_true, y_pred)
+    labels = label_encoder.classes_
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels)
+    plt.xlabel("Predito")
+    plt.ylabel("Verdadeiro")
+    plt.title("Matriz de Confusão")
+    plt.tight_layout()
+    plt.savefig("mlp/tf-idf/mlp_matriz_confusao.png")
+    plt.close()
+
+early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+
+model = build_model()
+history = model.fit(
+    X_train, y_train,
+    validation_data=(X_val, y_val),
+    epochs=25,
+    batch_size=32,
+    callbacks=[early_stop]
+)
+
+plot_history(history, model, X_val, y_val, le)
